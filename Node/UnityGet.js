@@ -1,25 +1,22 @@
-const express = require("express");   //express 선언
-const app = express();
+const express = require("express");
+const   app = express();
 
 let users = [
-    {id : 0 , data : "User 1"}
+    {id : 0, data : "User 1"}
 ];
 
-app.use(express.json());      //express json 사용
+app.use(express.json());
 
-app.get("/" , (req, res) => {
-
-    let result = 
+app.get("/", (req, res)=>{
+    let result =
     {
         cmd : -1,
         message : 'Hello world!'
     }
     res.send(result);
-
 })
 
-app.post("/userdata" , (req, res) => {      //Json 형태로 선언 후 사용
-   
+app.post("/userdata", (req, res)=>{
     const {id, data} = req.body;
     console.log(id, data);
 
@@ -28,16 +25,16 @@ app.post("/userdata" , (req, res) => {      //Json 형태로 선언 후 사용
         cmd : -1,
         message : ''
     }
-    
+
     let user = users.find(x=>x.id == id);
 
-    if (user === undefined)         //유저 아이디가 없음 (신규등록)
+    if(user === undefined)
     {
         users.push({id,data});
         result.cmd = 1001;
         result.message = "유저 신규 등록";
-    }   
-    else                            //유저가 있을경우 데이터를 갱신 한다.
+    }
+    else
     {
         console.log(id, user.data);
         user.data = data;
@@ -48,21 +45,18 @@ app.post("/userdata" , (req, res) => {      //Json 형태로 선언 후 사용
 })
 
 app.get("/userdata/list" , (req, res) => {
-    
     let result = users.sort(function(a,b)
     {
         return b.score - a.score;
     });
-
     result = result.slice(0,users.length);
-
     res.send({
         cmd : 1101,
-        message :'',
+        message : '',
         result
-    })
-
+    }) 
 })
-app.listen(3000, function(){     //3000포트에 서버 통신
+
+app.listen(3000, function(){
     console.log('Example app listening on port 3000');
 })
