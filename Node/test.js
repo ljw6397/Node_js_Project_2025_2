@@ -1,49 +1,57 @@
-const {add} = require("./math.js");
+const {add} = require("./math.js"); // math.js의 add 함수 사용
 
-let num = 42;           //int
-var name = "Tom";       //string
-let isStudent = true;   //bool
+// 변수 선언
+let num = 42;                       // int              (var = 중복 선언 가능, let 중복 선언 불가능)
+var name = "TOM";                   // string
+let isStudent = true;               // bool
 
 console.log(add(num, num));
 
-let color = ["red" , "green" , "blue"];
+// 배열
+let color = ["red", "grren", "blue"];
 
-let person = { name : "Alice", age : 30};
+// 객체
+let person = {name : "Alice", age : 30};
 
+// 함수
 function greet(name)
 {
-    console.log("Hello" + name + " ! ");
+    console.log("Hello " + name + " ! ");
 }
+
+// 함수 호출
 greet(person.name);
 
+// 조건문
 if(num > 30)
 {
-    console.log("Number is greater tan 30");
+    console.log("Number is greater than 30");
 }
 else
 {
     console.log("Number is lower than 30");
 }
 
+// 반복문
 for(var i = 0; i < 5; i++)
 {
     console.log(i);
 }
 
-//비동기 콜백
-
-setTimeout(() =>{
+// 비동기 콜백
+// 실행 순서가 아닌 완료 순서대로.. (4 > 2 > 1 > 3 순서)
+setTimeout(() => {
     console.log("Delayed Message 1");
-}, 1000); //1초
+}, 1000);       // 1초
 
-setTimeout(() =>{
+setTimeout(() => {
     console.log("Delayed Message 2");
-}, 750); //0.75초
+}, 750);       // 0.75초
 
-setTimeout(() =>{
+setTimeout(() => {
     console.log("Delayed Message 3");
-}, 2000); //2초
+}, 2000);       // 2초
 
-setTimeout(() =>{
+setTimeout(() => {
     console.log("Delayed Message 4");
-}, 500); //0.5초
+}, 500);       // 0.5초
