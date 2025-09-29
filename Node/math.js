@@ -1,7 +1,7 @@
 function add(a,b)
 {
-    return a+b;
+    return a + b;
 }
 
-// 이걸 안 쓰면 js에서 add 못 가져옴
+//이거 없으면 js에서 못가지고 옴
 module.exports = {add};
