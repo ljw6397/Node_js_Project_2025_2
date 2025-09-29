@@ -8,13 +8,14 @@ using System;
 
 public class GameAPI : MonoBehaviour
 {
-    private string baseUrl = "http://localhost:4000/api";
+    private string baseUrl = "http://localhost:4000/api";                   //Node.js 서버의 URL
 
-    public IEnumerator ResisterPlayer(string playerName, string password)
+    //플레이어 레지스터
+    public IEnumerator RegisterPlayer(string playerName, string password)
     {
-        var requestData = new {name = playerName, password = password};
+        var requestData = new { name = playerName, password = password };
         string jsonData = JsonConvert.SerializeObject(requestData);
-        Debug.Log(@"Resistering player: {jsonData}");
+        Debug.Log($"Registering player: {jsonData}");
 
         using (UnityWebRequest request = new UnityWebRequest($"{baseUrl}/register", "POST"))
         {
@@ -25,7 +26,7 @@ public class GameAPI : MonoBehaviour
 
             yield return request.SendWebRequest();
 
-            if(request.result != UnityWebRequest.Result.Success)
+            if (request.result != UnityWebRequest.Result.Success)
             {
                 Debug.LogError($"Error registering player : {request.result}");
             }
@@ -36,11 +37,11 @@ public class GameAPI : MonoBehaviour
         }
     }
 
-    public IEnumerator LoginPlayer(string playerName, string password, Action<PlayerModel> onSeuccess)
+    //플레이어 로그인 메서드
+    public IEnumerator LoginPlayer(string playerName, string password, Action<PlayerModel> onSuccess)
     {
         var requestData = new { name = playerName, password = password };
         string jsonData = JsonConvert.SerializeObject(requestData);
-
 
         using (UnityWebRequest request = new UnityWebRequest($"{baseUrl}/login", "POST"))
         {
@@ -57,12 +58,14 @@ public class GameAPI : MonoBehaviour
             }
             else
             {
+                //응답을 처리하여 PlayerModel 생성
                 string responseBody = request.downloadHandler.text;
 
                 try
                 {
                     var responseData = JsonConvert.DeserializeObject<Dictionary<string, object>>(responseBody);
 
+                    //서버 응답에서 PlayerModel 생성
                     PlayerModel playerMode = new PlayerModel(responseData["playerName"].ToString())
                     {
                         metal = Convert.ToInt32(responseData["metal"]),
@@ -70,15 +73,16 @@ public class GameAPI : MonoBehaviour
                         deuterium = Convert.ToInt32(responseData["deuterium"]),
                         Planets = new List<PlanetModel>()
                     };
-                    onSeuccess?.Invoke(playerMode);
+                    onSuccess?.Invoke(playerMode);
                     Debug.Log("Login successful");
                 }
                 catch (Exception ex)
                 {
                     Debug.LogError($"Error processing login responce : {ex.Message}");
                 }
-
             }
         }
+
     }
+
 }
