@@ -28,6 +28,22 @@ class GameServer {
             playerId : playerId,
             message : '서버에 연결 되었습니다!'
           };
+
+          //기존 플레이어들 정보를 새 플레이어에게 전송
+          this.players.forEach((player, pid) => {
+             if(pid !== playerId)
+             {
+              const joinMsg = {
+              type : 'playerJoin',
+              playerId : pid,
+              position: player.position,
+              rotation: player.rotation
+              };
+              socket.send(JSON.stringify(joinMsg));
+              console.log(`기존 플레이어 정보 전송 : ${pid} -> ${playerId}`);
+             }
+
+          });
           
            socket.send(JSON.stringify(welcomData));
 
@@ -35,7 +51,10 @@ class GameServer {
               try
               {
                 const data = JSON.parse(message);
+               if(data.type === 'chat')
+               {
                 console.log('수신된 메세지 : ', data);
+               
 
                 //채팅 메세지 브로드캐스트(보내 사람 정보 포함)
                 this.broadcast({
@@ -44,7 +63,33 @@ class GameServer {
                    message: data.message
                 });
               }
-            catch
+              else if(data.type === 'positionUpdate')
+              {
+                const player = this.players.get(playerId);
+                if(player)
+                {
+                  if(data.position)           //위치 값 저장
+                  {
+                    player.position = data.position;
+                  }
+                  if(data.rotation)        //회전 값 저장
+                  {
+                    player.rotation = data.rotation;
+                  }
+                }
+
+                //다른 플레이어들에게 브로드 캐스트
+                const updateMsg = {
+                  type : 'positionUpdate',
+                  playerId : playerId, 
+                  position : player.position,
+                  rotation : player.rotation
+                };
+
+                this.broadcast(updateMsg, socket);
+              }
+              }
+            catch(error)
              {
               console.error('메세지 파싱 에러 : ', error);
              }
@@ -69,17 +114,26 @@ class GameServer {
         });
     }
 
-    broadcast(data)
+    broadcast(data , excludeSocket = null)
     {
         const message = JSON.stringify(data);
+        let sentCount = 0;
+
         this.clients.forEach(client =>
         {
 
-            if(client.readyState === WebSocket.OPEN) //===는 비교전에 암시적인 형 변환을 하지 않음(값이나 타입 중 하나라도 다르면 false 반환)
+            if(client !== excludeSocket && client.readyState === WebSocket.OPEN) //===는 비교전에 암시적인 형 변환을 하지 않음(값이나 타입 중 하나라도 다르면 false 반환)
             {
               client.send(message);
+              sentCount++;
             }
         });
+
+        //디버그: 브로드캐스트 확인
+        if(data.type !== 'positionUpdate')
+        {
+          console.log(`브로드 캐스트 완료 ${data.type} (${sentCount} 명에게 전송 ) `);
+        }
     }
 
     generatePlayerId()
